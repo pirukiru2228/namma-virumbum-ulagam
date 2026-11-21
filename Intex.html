@@ -1,0 +1,1216 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Namma Virumbum Ulagam | நம்ம விரும்பும் உலகம்</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Noto Sans Tamil & Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Tamil:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', '"Noto Sans Tamil"', 'sans-serif'],
+                        tamil: ['"Noto Sans Tamil"', '"Plus Jakarta Sans"', 'sans-serif']
+                    },
+                    colors: {
+                        brand: {
+                            teal: '#0F4C5C',
+                            darkTeal: '#09313C',
+                            saffron: '#E36414',
+                            gold: '#FB8B24',
+                            cream: '#FDFBF7',
+                            sand: '#F4EFE6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar for category bar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        body {
+            background-color: #FDFBF7;
+            color: #1E293B;
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;  
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Notification / Toast Banner -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Header & Navigation -->
+    <header class="bg-gradient-to-r from-brand-darkTeal via-brand-teal to-[#166073] text-white shadow-lg sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center justify-between py-3.5 gap-3">
+                
+                <!-- Brand Logo & Title -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="resetFilters()">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-brand-gold to-brand-saffron flex items-center justify-center shadow-md text-white text-xl font-bold shrink-0">
+                        <i class="fa-solid fa-earth-asia"></i>
+                    </div>
+                    <div>
+                        <h1 id="site-title" class="text-lg sm:text-2xl font-extrabold tracking-tight leading-tight text-white">
+                            நம்ம விரும்பும் உலகம்
+                        </h1>
+                        <p id="site-subtitle" class="text-xs text-teal-100 font-medium">
+                            Namma Virumbum Ulagam • வாழ்வியல் & பொழுதுபோக்கு
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Controls: Language Toggle & New Post Button -->
+                <div class="flex items-center gap-2.5 sm:gap-3 ml-auto">
+                    <!-- Language Toggle Switch -->
+                    <button id="lang-toggle-btn" onclick="toggleLanguage()" class="flex items-center gap-1.5 bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/25 text-white px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition active:scale-95">
+                        <i class="fa-solid fa-language text-brand-gold text-base"></i>
+                        <span id="lang-toggle-label">English</span>
+                    </button>
+
+                    <!-- Add New Post Button -->
+                    <button onclick="openCreateModal()" class="flex items-center gap-2 bg-gradient-to-r from-brand-saffron to-brand-gold hover:from-orange-600 hover:to-amber-500 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition active:scale-95">
+                        <i class="fa-solid fa-plus"></i>
+                        <span id="btn-new-post-text">புதிய பதிவு</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Bar Row -->
+            <div class="pb-3.5">
+                <div class="relative max-w-2xl mx-auto">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-teal-200">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="search-input" oninput="handleSearch()" 
+                        placeholder="நாட்டு நடப்புகள், சினிமா, பாடல்கள், சமையல், மருத்துவம், ஆன்மீகம் தேடுங்கள்..." 
+                        class="w-full pl-10 pr-10 py-2.5 bg-white/10 border border-white/20 rounded-xl text-white placeholder-teal-200/80 text-sm focus:outline-none focus:bg-white focus:text-slate-800 focus:placeholder-slate-400 transition shadow-inner">
+                    <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Filter Strip -->
+        <div class="bg-white border-b border-stone-200 shadow-sm text-slate-700">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div id="category-tabs" class="flex items-center gap-2 py-2.5 overflow-x-auto no-scrollbar">
+                    <!-- Categories dynamically rendered here -->
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        
+        <!-- Status / Info Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h2 id="current-section-title" class="text-lg sm:text-xl font-bold text-slate-800">
+                    அனைத்து பதிவுகள் (All Posts)
+                </h2>
+                <span id="post-count-badge" class="bg-brand-sand text-brand-teal text-xs font-bold px-2.5 py-0.5 rounded-full border border-stone-200">
+                    0
+                </span>
+            </div>
+            <div class="text-xs text-slate-500 flex items-center gap-1.5">
+                <i class="fa-solid fa-globe text-brand-teal"></i>
+                <span id="sync-status-text">நேரலை இணைப்பு (Live Online)</span>
+            </div>
+        </div>
+
+        <!-- Loading Skeleton -->
+        <div id="loading-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-stone-100 animate-pulse">
+                <div class="h-48 bg-stone-200 rounded-xl mb-4"></div>
+                <div class="h-4 bg-stone-200 rounded w-1/3 mb-3"></div>
+                <div class="h-6 bg-stone-200 rounded w-3/4 mb-2"></div>
+                <div class="h-4 bg-stone-200 rounded w-full mb-2"></div>
+                <div class="h-4 bg-stone-200 rounded w-2/3"></div>
+            </div>
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-stone-100 animate-pulse hidden sm:block">
+                <div class="h-48 bg-stone-200 rounded-xl mb-4"></div>
+                <div class="h-4 bg-stone-200 rounded w-1/3 mb-3"></div>
+                <div class="h-6 bg-stone-200 rounded w-3/4 mb-2"></div>
+                <div class="h-4 bg-stone-200 rounded w-full mb-2"></div>
+                <div class="h-4 bg-stone-200 rounded w-2/3"></div>
+            </div>
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-stone-100 animate-pulse hidden lg:block">
+                <div class="h-48 bg-stone-200 rounded-xl mb-4"></div>
+                <div class="h-4 bg-stone-200 rounded w-1/3 mb-3"></div>
+                <div class="h-6 bg-stone-200 rounded w-3/4 mb-2"></div>
+                <div class="h-4 bg-stone-200 rounded w-full mb-2"></div>
+                <div class="h-4 bg-stone-200 rounded w-2/3"></div>
+            </div>
+        </div>
+
+        <!-- Posts Grid -->
+        <div id="posts-grid" class="hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Post Cards will be injected here -->
+        </div>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="hidden text-center py-16 bg-white rounded-3xl border border-stone-200/80 shadow-sm px-4">
+            <div class="w-16 h-16 bg-brand-sand text-brand-saffron rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
+                <i class="fa-regular fa-folder-open"></i>
+            </div>
+            <h3 id="empty-title" class="text-lg font-bold text-slate-800 mb-1">பதிவுகள் எதுவும் இல்லை</h3>
+            <p id="empty-desc" class="text-sm text-slate-500 max-w-md mx-auto mb-6">இந்தப் பிரிவில் இன்னும் தகவல்கள் சேர்க்கப்படவில்லை. நீங்களே முதல் பதிவை இணையுங்கள்!</p>
+            <button onclick="openCreateModal()" class="inline-flex items-center gap-2 bg-brand-teal hover:bg-brand-darkTeal text-white px-5 py-2.5 rounded-xl text-sm font-semibold transition">
+                <i class="fa-solid fa-plus"></i>
+                <span id="empty-btn-text">புதிய பதிவு சேர்க்க</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-brand-darkTeal text-teal-100 py-8 mt-12 border-t border-teal-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-brand-saffron flex items-center justify-center text-white font-bold">
+                    <i class="fa-solid fa-earth-asia"></i>
+                </div>
+                <span class="font-bold text-white text-base">நம்ம விரும்பும் உலகம் | Namma Virumbum Ulagam</span>
+            </div>
+            <p id="footer-tagline" class="text-xs text-teal-200/80 text-center sm:text-right">
+                நாட்டு நடப்புகள் • சினிமா • பாடல்கள் • வரலாறு • சமையல் • மருத்துவம் • அழகு குறிப்புகள் • ஆன்மீகத் தகவல்கள் • புகைப்படங்கள்
+            </p>
+        </div>
+    </footer>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: CREATE NEW POST / UPLOAD FORM     -->
+    <!-- ========================================== -->
+    <div id="create-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-stone-200 overflow-hidden my-8">
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-brand-darkTeal to-brand-teal px-6 py-4 flex items-center justify-between text-white">
+                <div class="flex items-center gap-2.5">
+                    <i class="fa-solid fa-pen-to-square text-brand-gold text-lg"></i>
+                    <h3 id="modal-create-title" class="font-bold text-lg">புதிய பதிவு உருவாக்க / Create Post</h3>
+                </div>
+                <button onclick="closeCreateModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form -->
+            <form id="post-form" onsubmit="handlePostSubmit(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                
+                <!-- Category Selection (All 9 Distinct Categories) -->
+                <div>
+                    <label id="lbl-category" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        பிரிவு (Category) *
+                    </label>
+                    <select id="post-category" required class="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                        <option value="news">📰 நாட்டு நடப்புகள் (Current Affairs)</option>
+                        <option value="cinema">🎬 சினிமா செய்திகள் (Cinema News)</option>
+                        <option value="songs">🎵 பாடல்கள் (Songs & Music)</option>
+                        <option value="history">🏛️ இடங்களின் வரலாறு (Place History)</option>
+                        <option value="samaiyal">🍲 சமையல் குறிப்புகள் (Samaiyal / Cooking)</option>
+                        <option value="medicine">🌿 மருத்துவ குறிப்புகள் (Medicine / Health)</option>
+                        <option value="beauty">✨ அழகு குறிப்புகள் (Alagu Kurippu / Beauty)</option>
+                        <option value="spiritual">🕉️ ஆன்மீகத் தகவல்கள் (Spiritual Info)</option>
+                        <option value="photos">📸 புகைப்படங்கள் (Photo Gallery)</option>
+                    </select>
+                </div>
+
+                <!-- Post Title -->
+                <div>
+                    <label id="lbl-title" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        தலைப்பு (Title) *
+                    </label>
+                    <input type="text" id="post-title" required placeholder="உதாரணம்: செட்டிநாடு சிக்கன் குழம்பு செய்முறை..." 
+                        class="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                </div>
+
+                <!-- Photo Upload -->
+                <div>
+                    <label id="lbl-photo" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        புகைப்படம் பதிவேற்றவும் (Upload Photo)
+                    </label>
+                    <div class="border-2 border-dashed border-stone-300 rounded-2xl p-4 text-center bg-stone-50/70 hover:bg-stone-100/70 transition relative">
+                        <input type="file" id="post-photo-input" accept="image/*" onchange="handleImageUpload(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <div id="upload-placeholder" class="space-y-1 pointer-events-none">
+                            <i class="fa-solid fa-cloud-arrow-up text-2xl text-brand-teal"></i>
+                            <p id="lbl-upload-hint" class="text-xs font-semibold text-slate-700">புகைப்படத்தைத் தேர்ந்தெடுக்க இங்கே கிளிக் செய்யவும்</p>
+                            <p class="text-[11px] text-slate-400">JPG, PNG, WEBP (Auto-compressed for fast upload)</p>
+                        </div>
+                        <div id="image-preview-wrapper" class="hidden relative">
+                            <img id="image-preview" src="" alt="Preview" class="max-h-44 mx-auto rounded-xl object-cover shadow-sm">
+                            <button type="button" onclick="removeSelectedImage(event)" class="mt-2 inline-flex items-center gap-1 text-xs text-rose-600 font-semibold hover:underline">
+                                <i class="fa-solid fa-trash"></i> படத்தை நீக்கு (Remove)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional Song / Video URL -->
+                <div>
+                    <label id="lbl-media-url" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        பாடல் / வீடியோ லிங்க் (YouTube or MP3 Link - Optional)
+                    </label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
+                            <i class="fa-brands fa-youtube text-rose-500"></i>
+                        </span>
+                        <input type="url" id="post-media-url" placeholder="https://www.youtube.com/watch?v=..." 
+                            class="w-full pl-10 pr-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                    </div>
+                </div>
+
+                <!-- Full Description / Content -->
+                <div>
+                    <label id="lbl-content" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        முழு விபரம் / குறிப்புகள் (Description / Recipe / Tips) *
+                    </label>
+                    <textarea id="post-content" rows="5" required placeholder="உங்கள் செய்தி, பாடல் வரிகள், இடத்தின் வரலாறு, சமையல் அல்லது மருத்துவ குறிப்புகளை விரிவாக எழுதவும்..." 
+                        class="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-teal"></textarea>
+                </div>
+
+                <!-- Author Name -->
+                <div>
+                    <label id="lbl-author" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                        பதிவிடுபவர் பெயர் (Author Name)
+                    </label>
+                    <input type="text" id="post-author" placeholder="உங்கள் பெயர் (உதாரணம்: Admin / Karthik)" 
+                        class="w-full px-3.5 py-2.5 bg-stone-50 border border-stone-300 rounded-xl text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-teal">
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-stone-200">
+                    <button type="button" onclick="closeCreateModal()" id="btn-cancel-post" class="px-4 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-stone-100 transition">
+                        ரத்து செய் (Cancel)
+                    </button>
+                    <button type="submit" id="btn-submit-post" class="flex items-center gap-2 bg-gradient-to-r from-brand-saffron to-brand-gold hover:from-orange-600 hover:to-amber-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold shadow-md transition">
+                        <i class="fa-solid fa-paper-plane"></i>
+                        <span id="btn-publish-text">வெளியிடு (Publish)</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: READ FULL POST / ARTICLE VIEWER   -->
+    <!-- ========================================== -->
+    <div id="read-modal" class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-stone-200 overflow-hidden my-8">
+            <!-- Close Header -->
+            <div class="px-6 py-3.5 bg-stone-50 border-b border-stone-200 flex items-center justify-between">
+                <span id="read-category-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-teal text-white">
+                    Category
+                </span>
+                <div class="flex items-center gap-2">
+                    <button id="read-delete-btn" onclick="deleteCurrentPost()" title="Delete Post" class="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition">
+                        <i class="fa-solid fa-trash-can text-sm"></i>
+                    </button>
+                    <button onclick="closeReadModal()" class="w-8 h-8 rounded-full bg-stone-200/70 hover:bg-stone-300 text-slate-700 flex items-center justify-center transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Body -->
+            <div class="max-h-[80vh] overflow-y-auto">
+                <div id="read-image-container" class="w-full bg-stone-100">
+                    <img id="read-image" src="" alt="" class="w-full max-h-80 object-cover">
+                </div>
+
+                <div class="p-6 sm:p-8 space-y-5">
+                    <div>
+                        <h2 id="read-title" class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug mb-2">
+                            Post Title
+                        </h2>
+                        <div class="flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-solid fa-user-pen text-brand-teal"></i>
+                                <span id="read-author">Admin</span>
+                            </span>
+                            <span class="flex items-center gap-1.5">
+                                <i class="fa-regular fa-calendar text-brand-saffron"></i>
+                                <span id="read-date">Today</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Embedded Song / Video Player -->
+                    <div id="read-media-container" class="hidden rounded-2xl overflow-hidden border border-stone-200 bg-slate-900">
+                        <!-- YouTube iframe or Audio player injected here -->
+                    </div>
+
+                    <!-- Full Text -->
+                    <div id="read-content" class="text-slate-700 text-sm sm:text-base leading-relaxed whitespace-pre-line font-normal">
+                        Full content here...
+                    </div>
+
+                    <!-- Action Bar (Like & Copy Share) -->
+                    <div class="pt-5 border-t border-stone-200 flex items-center justify-between">
+                        <button id="read-like-btn" onclick="likeCurrentPost()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-sm transition active:scale-95">
+                            <i class="fa-solid fa-heart"></i>
+                            <span id="read-like-count">0</span>
+                            <span id="read-like-label">விருப்பம் (Like)</span>
+                        </button>
+
+                        <button onclick="copyPostText()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-slate-700 font-semibold text-sm transition">
+                            <i class="fa-solid fa-share-nodes"></i>
+                            <span id="read-share-label">பகிர் (Copy)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal (Custom UI, no alert/confirm) -->
+    <div id="delete-confirm-modal" class="fixed inset-0 z-[60] hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-stone-200 text-center space-y-4">
+            <div class="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h4 id="del-confirm-title" class="font-bold text-slate-800 text-lg">பதிவை நீக்கவா?</h4>
+            <p id="del-confirm-desc" class="text-xs text-slate-500">இந்தப் பதிவை நீக்கினால் மீண்டும் எடுக்க முடியாது. நிச்சயமாக நீக்க விரும்புகிறீர்களா?</p>
+            <div class="flex items-center justify-center gap-3 pt-2">
+                <button onclick="closeDeleteConfirm()" id="del-cancel-btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-stone-100 hover:bg-stone-200 text-slate-700">
+                    வேண்டாம் (Cancel)
+                </button>
+                <button onclick="confirmDeleteAction()" id="del-yes-btn" class="px-4 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white">
+                    ஆம், நீக்கு (Delete)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase & App Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration & Initialization
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'namma-virumbum-ulagam';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+
+        // Application State Variables
+        let currentLang = 'ta';
+        let currentCategory = 'all';
+        let searchQuery = '';
+        let allPosts = [];
+        let activePostId = null;
+        let pendingDeleteId = null;
+        let uploadedImageBase64 = '';
+        let useFallbackMemory = false;
+
+        // 9 Distinct Categories + All (Unique entries only - Tamil & English)
+        const CATEGORIES = [
+            { id: 'all', icon: 'fa-border-all', ta: 'அனைத்தும்', en: 'All', color: 'bg-slate-800 text-white' },
+            { id: 'news', icon: 'fa-newspaper', ta: 'நாட்டு நடப்புகள்', en: 'Current Affairs', color: 'bg-blue-700 text-white' },
+            { id: 'cinema', icon: 'fa-film', ta: 'சினிமா செய்திகள்', en: 'Cinema News', color: 'bg-purple-600 text-white' },
+            { id: 'songs', icon: 'fa-music', ta: 'பாடல்கள்', en: 'Songs', color: 'bg-rose-600 text-white' },
+            { id: 'history', icon: 'fa-landmark', ta: 'இடங்களின் வரலாறு', en: 'Place History', color: 'bg-amber-600 text-white' },
+            { id: 'samaiyal', icon: 'fa-utensils', ta: 'சமையல் குறிப்புகள்', en: 'Samaiyal', color: 'bg-orange-600 text-white' },
+            { id: 'medicine', icon: 'fa-leaf', ta: 'மருத்துவ குறிப்புகள்', en: 'Medicine', color: 'bg-emerald-600 text-white' },
+            { id: 'beauty', icon: 'fa-spa', ta: 'அழகு குறிப்புகள்', en: 'Beauty Tips', color: 'bg-pink-600 text-white' },
+            { id: 'spiritual', icon: 'fa-om', ta: 'ஆன்மீகத் தகவல்கள்', en: 'Spiritual Info', color: 'bg-indigo-600 text-white' },
+            { id: 'photos', icon: 'fa-camera-retro', ta: 'புகைப்படங்கள்', en: 'Photo Gallery', color: 'bg-sky-600 text-white' }
+        ];
+
+        // UI Translations
+        const UI_TEXT = {
+            ta: {
+                siteTitle: 'நம்ம விரும்பும் உலகம்',
+                siteSubtitle: 'Namma Virumbum Ulagam • வாழ்வியல் & பொழுதுபோக்கு',
+                langBtn: 'English',
+                newPostBtn: 'புதிய பதிவு',
+                searchPlaceholder: 'நாட்டு நடப்புகள், சினிமா, பாடல்கள், சமையல், மருத்துவம், ஆன்மீகம் தேடுங்கள்...',
+                allPostsTitle: 'அனைத்து பதிவுகள்',
+                liveStatus: 'நேரலை இணையதளம் (Live Online)',
+                emptyTitle: 'பதிவுகள் எதுவும் இல்லை',
+                emptyDesc: 'இந்தப் பிரிவில் இன்னும் தகவல்கள் சேர்க்கப்படவில்லை. நீங்களே முதல் பதிவை இணையுங்கள்!',
+                emptyBtn: 'புதிய பதிவு சேர்க்க',
+                readMore: 'மேலும் படிக்க',
+                likeLabel: 'விருப்பம்',
+                shareLabel: 'நகலெடு',
+                createTitle: 'புதிய பதிவு உருவாக்க',
+                lblCategory: 'பிரிவு (Category) *',
+                lblTitle: 'தலைப்பு (Title) *',
+                lblPhoto: 'புகைப்படம் பதிவேற்றவும் (Photo)',
+                lblUploadHint: 'புகைப்படத்தைத் தேர்ந்தெடுக்க இங்கே கிளிக் செய்யவும்',
+                lblMediaUrl: 'பாடல் / வீடியோ லிங்க் (YouTube / MP3 - விருப்பம்)',
+                lblContent: 'முழு விபரம் / குறிப்புகள் *',
+                lblAuthor: 'பதிவிடுபவர் பெயர்',
+                cancelBtn: 'ரத்து செய்',
+                publishBtn: 'வெளியிடு',
+                delTitle: 'பதிவை நீக்கவா?',
+                delDesc: 'இந்தப் பதிவை நீக்கினால் மீண்டும் எடுக்க முடியாது. நிச்சயமாக நீக்க விரும்புகிறீர்களா?',
+                delCancel: 'வேண்டாம்',
+                delYes: 'ஆம், நீக்கு',
+                toastPublished: 'உங்கள் பதிவு வெற்றிகரமாக வெளியிடப்பட்டது!',
+                toastDeleted: 'பதிவு நீக்கப்பட்டது.',
+                toastCopied: 'பதிவின் விபரம் நகலெடுக்கப்பட்டது!'
+            },
+            en: {
+                siteTitle: 'Namma Virumbum Ulagam',
+                siteSubtitle: 'நம்ம விரும்பும் உலகம் • Lifestyle & Entertainment',
+                langBtn: 'தமிழ்',
+                newPostBtn: 'New Post',
+                searchPlaceholder: 'Search current affairs, cinema, songs, recipes, health, spiritual info...',
+                allPostsTitle: 'All Posts',
+                liveStatus: 'Live Online Database',
+                emptyTitle: 'No Posts Found',
+                emptyDesc: 'No articles in this section yet. Be the first to publish a post!',
+                emptyBtn: 'Add New Post',
+                readMore: 'Read More',
+                likeLabel: 'Like',
+                shareLabel: 'Copy Text',
+                createTitle: 'Create New Post',
+                lblCategory: 'Category *',
+                lblTitle: 'Post Title *',
+                lblPhoto: 'Upload Photo',
+                lblUploadHint: 'Click here to select a photo from your device',
+                lblMediaUrl: 'Song / Video Link (YouTube or MP3 - Optional)',
+                lblContent: 'Full Description / Recipe / Tips *',
+                lblAuthor: 'Author Name',
+                cancelBtn: 'Cancel',
+                publishBtn: 'Publish Post',
+                delTitle: 'Delete this post?',
+                delDesc: 'This action cannot be undone. Are you sure you want to delete this post?',
+                delCancel: 'Cancel',
+                delYes: 'Yes, Delete',
+                toastPublished: 'Your post has been published live!',
+                toastDeleted: 'Post deleted successfully.',
+                toastCopied: 'Post details copied to clipboard!'
+            }
+        };
+
+        // Rich Initial Sample Posts (1 unique sample per category across all 9 categories)
+        const SAMPLE_POSTS = [
+            {
+                category: 'news',
+                title: 'பசுமை எரிசக்தி மற்றும் நவீன தொழில்நுட்ப வளர்ச்சியில் புதிய மைல்கல் (Global Green Energy & Tech Updates)',
+                content: 'உலக அளவில் புதுப்பிக்கத்தக்க சூரிய மற்றும் காற்றாலை மின் உற்பத்தி புதிய உச்சத்தை எட்டியுள்ளது. சுற்றுச்சூழல் பாதுகாப்பு, டிஜிட்டல் கல்வி மற்றும் நவீன போக்குவரத்துத் துறைகளில் மேற்கொள்ளப்பட்டு வரும் முக்கியத் திட்டங்கள் மக்களின் அன்றாட வாழ்க்கைத் தரத்தை உயர்த்தி வருகின்றன.\n\nMajor advancements in renewable solar energy, digital infrastructure, and sustainable public transport are shaping a cleaner and brighter future.',
+                imageUrl: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?auto=format&fit=crop&w=900&q=80',
+                mediaUrl: '',
+                author: 'செய்திப் பிரிவு (News Desk)',
+                likes: 64,
+                createdAtMs: Date.now() - 25000
+            },
+            {
+                category: 'spiritual',
+                title: 'அதிகாலை பிரம்ம முகூர்த்த வழிபாட்டின் மகத்துவம் (Power of Brahma Muhurta Prayer)',
+                content: 'அதிகாலை 4:30 மணி முதல் 6:00 மணி வரையிலான பிரம்ம முகூர்த்த நேரம் ஆன்மீக வழிபாட்டிற்கும் தியானத்திற்கும் மிகவும் உகந்த நேரமாகும். இந்த நேரத்தில் வீட்டில் விளக்கேற்றி இறைவனை வழிபடுவதால் மன அமைதி, நேர்மறை ஆற்றல் மற்றும் குடும்பத்தில் ஐஸ்வர்யம் பெருகும் என்பது ஆன்மீக நம்பிக்கை.\n\nPraying and meditating during Brahma Muhurta (4:30 AM – 6:00 AM) brings inner peace, mental clarity, and positive energy into the home.',
+                imageUrl: 'https://images.unsplash.com/photo-1545127398-14699f92334b?auto=format&fit=crop&w=900&q=80',
+                mediaUrl: '',
+                author: 'ஆன்மீகச் சுடர் (Spiritual Desk)',
+                likes: 57,
+                createdAtMs: Date.now() - 50000
+            },
+            {
+                category: 'history',
+                title: 'தஞ்சை பெரிய கோவில் - தமிழர்களின் கட்டிடக்கலை அதிசயம் (Brihadeeswarar Temple History)',
+                content: 'தஞ்சாவூர் பெருவுடையார் கோவில் (Brihadeeswarar Temple) மாமன்னன் முதலாம் இராஜராஜ சோழனால் கி.பி. 1010-ஆம் ஆண்டு கட்டி முடிக்கப்பட்டது. 216 அடி உயரம் கொண்ட இதன் விமானம் முழுக்க முழுக்க கருங்கற்களால் கட்டப்பட்டது. ஆயிரம் ஆண்டுகளைக் கடந்தும் கம்பீரமாக நிற்கும் இந்தக் கோவில் யுனெஸ்கோ (UNESCO) உலகப் பாரம்பரிய சின்னமாகப் போற்றப்படுகிறது.\n\nBuilt by Emperor Rajaraja Chola I in 1010 AD, this architectural marvel stands 216 feet tall and is a UNESCO World Heritage Site.',
+                imageUrl: 'https://images.unsplash.com/photo-1582510003544-4d00b7f74220?auto=format&fit=crop&w=900&q=80',
+                mediaUrl: '',
+                author: 'வரலாற்று ஆய்வாளர் (History Desk)',
+                likes: 42,
+                createdAtMs: Date.now() - 100000
+            },
+            {
+                category: 'samaiyal',
+                title: 'பாரம்பரிய செட்டிநாடு மசாலா குழம்பு செய்முறை (Authentic Chettinad Gravy)',
+                content: 'தேவையான பொருட்கள்:\n• சின்ன வெங்காயம் - 150 கிராம்\n• தக்காளி - 2\n• மல்லி விதை, சீரகம், சோம்பு, மிளகு - தலா 1 தேக்கரண்டி\n• தேங்காய் துருவல் - அரை கப்\n• கறிவேப்பிலை, நல்லெண்ணெய் - தேவையான அளவு\n\nசெய்முறை:\n1. மல்லி, மிளகு, சீரகம், சோம்பு ஆகியவற்றை பொன்னிறமாக வறுத்து தேங்காயுடன் சேர்த்து விழுதாக அரைத்துக் கொள்ளவும்.\n2. வாணலியில் நல்லெண்ணெய் ஊற்றி கடுகு, கறிவேப்பிலை, சின்ன வெங்காயம் சேர்த்து வதக்கவும்.\n3. தக்காளி மற்றும் அரைத்த மசாலா சேர்த்து பச்சை வாசனை போகும் வரை கொதிக்க விட்டு இறக்கினால் சுவையான செட்டிநாடு குழம்பு தயார்!',
+                imageUrl: 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?auto=format&fit=crop&w=900&q=80',
+                mediaUrl: '',
+                author: 'அறுசுவை சமையல் (Chef Meena)',
+                likes: 35,
+                createdAtMs: Date.now() - 200000
+            },
+            {
+                category: 'cinema',
+                title: 'தமிழ் சினிமாவில் பிரம்மாண்டமாக உருவாகும் புதிய வரலாற்றுத் திரைப்படம் (Latest Tamil Cinema Update)',
+                content: 'தமிழ் திரையுலகில் முன்னணி இயக்குநர்கள் மற்றும் இசையமைப்பாளர்கள் கூட்டணியில் பிரம்மாண்டமான வரலாற்றுப் பின்னணி கொண்ட திரைப்படத்தின் படப்பிடிப்பு விறுவிறுப்பாக நடைபெற்று வருகிறது. இப்படத்தின் முதல் பார்வை போஸ்டர் மற்றும் பாடல்கள் விரைவில் வெளியாகும் என படக்குழு அதிகாரப்பூர்வமாக அறிவித்துள்ளது.\n\nExciting updates from Kollywood as major historical and action entertainers gear up for grand theatrical releases this season.',
+                imageUrl: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80',
+                mediaUrl: '',
+                author: 'சினிமா விமர்சகர் (Cinema Desk)',
+                likes: 29,
+                createdAtMs: Date.now() - 300000
+            },
+            {
+                category: 'songs',
+                title: 'மனதை வருடும் இனிமையான தமிழ் மெல்லிசைப் பாடல்கள் (Soothing Tamil Melody Hits)',
+                content: 'இரவு நேரத்திலும், பயணங்களின் போதும் மனதிற்கு அமைதி தரும் இனிமையான தமிழ் மெல்லிசைப் பாடல்களின் தொகுப்பு. இசையின் மாயாஜாலத்தை கீழே உள்ள வீடியோ மூலம் கேட்டு மகிழுங்கள்.\n\nEnjoy timeless Tamil melodies that bring peace and nostalgia to your day.',
+                imageUrl: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=900&q=80',
+                mediaUrl: 'https://www.youtube.com/watch?v=YR12Z8f1Dh8',
+                author: 'இசை பிரியன் (Music Club)',
+                likes: 54,
+                createdAtMs: Date.now() - 400000
+            },
+            {
+                category: 'medicine',
+                title: 'சளி, இருமல் நீங்க இயற்கை கஷாயம் - சித்த மருத்துவ குறிப்பு (Natural Herbal Remedy)',
+                content: 'பருவநிலை மாற்றத்தால் ஏற்படும் சளி, தொண்டை கரகரப்பு மற்றும் இருமலை குணப்படுத்த வீட்டிலேயே எளிதாக தயாரிக்கக்கூடிய மூலிகை கஷாயம்:\n\n• துளசி இலைகள் - 10\n• கற்பூரவள்ளி இலை - 3\n• இஞ்சி - சிறிய துண்டு\n• மிளகு - 5\n• மஞ்சள் தூள் - கால் தேக்கரண்டி\n\nஇவற்றை 2 டம்ளர் தண்ணீரில் போட்டு 1 டம்ளராக சுண்டும் வரை கொதிக்க வைத்து, வடிகட்டி தேன் கலந்து குடித்தால் உடனடி நிவாரணம் கிடைக்கும்.',
+                imageUrl: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=900&q=80',
+                mediaUrl: '',
+                author: 'நலவாழ்வு மையம் (Natural Health)',
+                likes: 48,
+                createdAtMs: Date.now() - 500000
+            },
+            {
+                category: 'beauty',
+                title: 'முகம் பொலிவு பெற இயற்கையான கற்றாழை & மஞ்சள் ஃபேஸ் பேக் (Natural Glow Beauty Tip)',
+                content: 'வெயிலினால் ஏற்படும் கருமையை நீக்கி முகம் இயற்கையாகப் பொலிவு பெற:\n\n1. சுத்தமான கற்றாழை ஜெல் (Aloe Vera Gel) - 2 தேக்கரண்டி\n2. கஸ்தூரி மஞ்சள் தூள் - அரை தேக்கரண்டி\n3. ரோஸ் வாட்டர் - 1 தேக்கரண்டி\n\nமூன்றையும் நன்றாகக் கலந்து முகத்தில் தடவி 15 நிமிடங்கள் கழித்து குளிர்ந்த நீரில் கழுவவும். வாரம் இருமுறை செய்து வர முகம் பளபளப்பாகும்.',
+                imageUrl: 'https://images.unsplash.com/photo-1596755389378-c31d21fd1273?auto=format&fit=crop&w=900&q=80',
+                mediaUrl: '',
+                author: 'அழகு கலை நிபுணர் (Beauty Care)',
+                likes: 31,
+                createdAtMs: Date.now() - 600000
+            },
+            {
+                category: 'photos',
+                title: 'இயற்கையின் எழில் கொஞ்சும் மேற்குத் தொடர்ச்சி மலைக் காட்சிகள் (Nature Photography)',
+                content: 'காலை நேரப் பனிமூட்டத்தில் ஜொலிக்கும் பசுமையான தேயிலைத் தோட்டங்களும், மலைச் சிகரங்களும் கண்களுக்கு விருந்தளிக்கும் அழகிய புகைப்படம். நீங்களும் உங்களுக்குப் பிடித்த புகைப்படங்களை இங்கே பதிவேற்றலாம்!\n\nBreathtaking misty morning over the lush green hills.',
+                imageUrl: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80',
+                mediaUrl: '',
+                author: 'புகைப்படக் கலைஞர் (Photo Gallery)',
+                likes: 63,
+                createdAtMs: Date.now() - 700000
+            }
+        ];
+
+        // Initialize App
+        async function initApp() {
+            renderCategoryTabs();
+            updateLanguageUI();
+
+            if (firebaseConfig) {
+                try {
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+
+                    // Rule 3: Authenticate FIRST before any Firestore operations
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            currentUser = user;
+                            subscribeToPosts();
+                        }
+                    });
+                } catch (err) {
+                    console.error("Firebase init error, using local fallback:", err);
+                    enableFallbackMode();
+                }
+            } else {
+                enableFallbackMode();
+            }
+        }
+
+        function enableFallbackMode() {
+            useFallbackMemory = true;
+            allPosts = SAMPLE_POSTS.map((p, idx) => ({ id: 'sample-' + idx, ...p }));
+            document.getElementById('loading-grid').classList.add('hidden');
+            renderPosts();
+        }
+
+        // Subscribe to Public Firestore Collection (Rule 1 & Rule 2)
+        let seededCategories = new Set();
+        function subscribeToPosts() {
+            if (!db || !currentUser) return;
+            const postsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
+
+            onSnapshot(postsColRef, async (snapshot) => {
+                if (snapshot.empty) {
+                    // Seed initial sample posts on first run
+                    for (const item of SAMPLE_POSTS) {
+                        if (!seededCategories.has(item.category)) {
+                            seededCategories.add(item.category);
+                            try {
+                                await addDoc(postsColRef, {
+                                    ...item,
+                                    createdAt: serverTimestamp()
+                                });
+                            } catch (e) {
+                                console.error("Seed error:", e);
+                            }
+                        }
+                    }
+                    return;
+                }
+
+                const fetched = [];
+                const seenTitles = new Set();
+                const presentCategories = new Set();
+
+                snapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (!seenTitles.has(data.title)) {
+                        seenTitles.add(data.title);
+                        presentCategories.add(data.category);
+                        fetched.push({
+                            id: docSnap.id,
+                            ...data
+                        });
+                    }
+                });
+
+                // Backfill any missing sample categories cleanly once
+                for (const sample of SAMPLE_POSTS) {
+                    if (!presentCategories.has(sample.category) && !seededCategories.has(sample.category)) {
+                        seededCategories.add(sample.category);
+                        try {
+                            await addDoc(postsColRef, {
+                                ...sample,
+                                createdAt: serverTimestamp()
+                            });
+                        } catch (e) {
+                            console.error("Category backfill seed error:", e);
+                        }
+                    }
+                }
+
+                // Sort in JavaScript memory (newest first) - Rule 2 compliant
+                fetched.sort((a, b) => {
+                    const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : (a.createdAtMs || 0);
+                    const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : (b.createdAtMs || 0);
+                    return timeB - timeA;
+                });
+
+                allPosts = fetched;
+                document.getElementById('loading-grid').classList.add('hidden');
+                renderPosts();
+            }, (error) => {
+                console.error("Firestore onSnapshot error:", error);
+                enableFallbackMode();
+            });
+        }
+
+        // Render Category Filter Tabs
+        window.renderCategoryTabs = function() {
+            const container = document.getElementById('category-tabs');
+            container.innerHTML = CATEGORIES.map(cat => {
+                const isActive = currentCategory === cat.id;
+                const label = currentLang === 'ta' ? cat.ta : cat.en;
+                const activeClasses = isActive
+                    ? 'bg-brand-teal text-white shadow-md scale-[1.02]'
+                    : 'bg-stone-100 hover:bg-stone-200 text-slate-700';
+
+                return `
+                    <button onclick="selectCategory('${cat.id}')" 
+                        class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all shrink-0 ${activeClasses}">
+                        <i class="fa-solid ${cat.icon} ${isActive ? 'text-brand-gold' : 'text-brand-teal'}"></i>
+                        <span>${label}</span>
+                    </button>
+                `;
+            }).join('');
+        };
+
+        // Select Category
+        window.selectCategory = function(catId) {
+            currentCategory = catId;
+            renderCategoryTabs();
+            updateSectionHeader();
+            renderPosts();
+        };
+
+        // Reset Filters
+        window.resetFilters = function() {
+            currentCategory = 'all';
+            searchQuery = '';
+            document.getElementById('search-input').value = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            renderCategoryTabs();
+            updateSectionHeader();
+            renderPosts();
+        };
+
+        // Search Handler
+        window.handleSearch = function() {
+            const input = document.getElementById('search-input');
+            searchQuery = input.value.trim().toLowerCase();
+            const clearBtn = document.getElementById('clear-search-btn');
+            if (searchQuery.length > 0) {
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.add('hidden');
+            }
+            renderPosts();
+        };
+
+        window.clearSearch = function() {
+            document.getElementById('search-input').value = '';
+            searchQuery = '';
+            document.getElementById('clear-search-btn').classList.add('hidden');
+            renderPosts();
+        };
+
+        // Toggle Language (Tamil <-> English)
+        window.toggleLanguage = function() {
+            currentLang = currentLang === 'ta' ? 'en' : 'ta';
+            updateLanguageUI();
+            renderCategoryTabs();
+            updateSectionHeader();
+            renderPosts();
+        };
+
+        function updateLanguageUI() {
+            const t = UI_TEXT[currentLang];
+            document.getElementById('site-title').textContent = t.siteTitle;
+            document.getElementById('site-subtitle').textContent = t.siteSubtitle;
+            document.getElementById('lang-toggle-label').textContent = t.langBtn;
+            document.getElementById('btn-new-post-text').textContent = t.newPostBtn;
+            document.getElementById('search-input').placeholder = t.searchPlaceholder;
+            document.getElementById('sync-status-text').textContent = t.liveStatus;
+            document.getElementById('empty-title').textContent = t.emptyTitle;
+            document.getElementById('empty-desc').textContent = t.emptyDesc;
+            document.getElementById('empty-btn-text').textContent = t.emptyBtn;
+            document.getElementById('modal-create-title').textContent = t.createTitle;
+            document.getElementById('lbl-category').textContent = t.lblCategory;
+            document.getElementById('lbl-title').textContent = t.lblTitle;
+            document.getElementById('lbl-photo').textContent = t.lblPhoto;
+            document.getElementById('lbl-upload-hint').textContent = t.lblUploadHint;
+            document.getElementById('lbl-media-url').textContent = t.lblMediaUrl;
+            document.getElementById('lbl-content').textContent = t.lblContent;
+            document.getElementById('lbl-author').textContent = t.lblAuthor;
+            document.getElementById('btn-cancel-post').textContent = t.cancelBtn;
+            document.getElementById('btn-publish-text').textContent = t.publishBtn;
+            document.getElementById('del-confirm-title').textContent = t.delTitle;
+            document.getElementById('del-confirm-desc').textContent = t.delDesc;
+            document.getElementById('del-cancel-btn').textContent = t.delCancel;
+            document.getElementById('del-yes-btn').textContent = t.delYes;
+        }
+
+        function updateSectionHeader() {
+            const catObj = CATEGORIES.find(c => c.id === currentCategory) || CATEGORIES[0];
+            const titleEl = document.getElementById('current-section-title');
+            if (currentCategory === 'all') {
+                titleEl.textContent = currentLang === 'ta' ? 'அனைத்து பதிவுகள் (All Posts)' : 'All Posts (அனைத்து பதிவுகள்)';
+            } else {
+                titleEl.textContent = currentLang === 'ta' ? `${catObj.ta} (${catObj.en})` : `${catObj.en} (${catObj.ta})`;
+            }
+        }
+
+        // Render Filtered Posts Grid
+        function renderPosts() {
+            const grid = document.getElementById('posts-grid');
+            const emptyState = document.getElementById('empty-state');
+            const countBadge = document.getElementById('post-count-badge');
+
+            const filtered = allPosts.filter(post => {
+                const matchesCategory = currentCategory === 'all' || post.category === currentCategory;
+                const matchesSearch = !searchQuery || 
+                    (post.title && post.title.toLowerCase().includes(searchQuery)) ||
+                    (post.content && post.content.toLowerCase().includes(searchQuery)) ||
+                    (post.author && post.author.toLowerCase().includes(searchQuery));
+                return matchesCategory && matchesSearch;
+            });
+
+            countBadge.textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.classList.remove('hidden');
+
+            const readMoreText = UI_TEXT[currentLang].readMore;
+
+            grid.innerHTML = filtered.map(post => {
+                const catInfo = CATEGORIES.find(c => c.id === post.category) || CATEGORIES[1];
+                const catLabel = currentLang === 'ta' ? catInfo.ta : catInfo.en;
+                const fallbackImg = `https://placehold.co/800x500/0F4C5C/FFFFFF?text=${encodeURIComponent(catInfo.en)}`;
+                const imgSrc = post.imageUrl && post.imageUrl.trim() !== '' ? post.imageUrl : fallbackImg;
+                const hasMedia = post.mediaUrl && post.mediaUrl.trim() !== '';
+
+                return `
+                    <article onclick="openReadModal('${post.id}')" 
+                        class="group bg-white rounded-2xl overflow-hidden border border-stone-200/80 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col cursor-pointer">
+                        
+                        <!-- Card Image -->
+                        <div class="relative h-52 bg-stone-100 overflow-hidden">
+                            <img src="${imgSrc}" alt="${escapeHtml(post.title)}" 
+                                onerror="this.onerror=null;this.src='${fallbackImg}';"
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            
+                            <!-- Category Pill -->
+                            <span class="absolute top-3 left-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold shadow-md ${catInfo.color}">
+                                <i class="fa-solid ${catInfo.icon}"></i>
+                                ${catLabel}
+                            </span>
+
+                            ${hasMedia ? `
+                                <span class="absolute bottom-3 right-3 w-9 h-9 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-lg animate-pulse" title="Playable Song / Video">
+                                    <i class="fa-solid fa-play text-xs ml-0.5"></i>
+                                </span>
+                            ` : ''}
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="p-5 flex-grow flex flex-col justify-between space-y-4">
+                            <div>
+                                <h3 class="font-bold text-base sm:text-lg text-slate-900 group-hover:text-brand-teal transition line-clamp-2 leading-snug mb-2">
+                                    ${escapeHtml(post.title)}
+                                </h3>
+                                <p class="text-slate-600 text-xs sm:text-sm line-clamp-3 leading-relaxed">
+                                    ${escapeHtml(post.content)}
+                                </p>
+                            </div>
+
+                            <!-- Card Footer -->
+                            <div class="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-slate-500">
+                                <div class="flex items-center gap-2 truncate max-w-[60%]">
+                                    <span class="w-6 h-6 rounded-full bg-brand-sand text-brand-teal font-bold flex items-center justify-center shrink-0">
+                                        ${(post.author || 'A').charAt(0).toUpperCase()}
+                                    </span>
+                                    <span class="truncate font-medium">${escapeHtml(post.author || 'Admin')}</span>
+                                </div>
+
+                                <div class="flex items-center gap-3 shrink-0">
+                                    <span class="flex items-center gap-1 text-rose-500 font-semibold">
+                                        <i class="fa-solid fa-heart"></i> ${post.likes || 0}
+                                    </span>
+                                    <span class="text-brand-saffron font-bold group-hover:translate-x-0.5 transition-transform">
+                                        ${readMoreText} →
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        // Image Compression & Preview Handler
+        window.handleImageUpload = function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const scaleSize = img.width > MAX_WIDTH ? (MAX_WIDTH / img.width) : 1;
+                    canvas.width = img.width * scaleSize;
+                    canvas.height = img.height * scaleSize;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                    uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.75);
+
+                    document.getElementById('image-preview').src = uploadedImageBase64;
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    document.getElementById('image-preview-wrapper').classList.remove('hidden');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        window.removeSelectedImage = function(event) {
+            event.stopPropagation();
+            uploadedImageBase64 = '';
+            document.getElementById('post-photo-input').value = '';
+            document.getElementById('image-preview').src = '';
+            document.getElementById('image-preview-wrapper').classList.add('hidden');
+            document.getElementById('upload-placeholder').classList.remove('hidden');
+        };
+
+        // Create Post Modal Controls
+        window.openCreateModal = function() {
+            document.getElementById('create-modal').classList.remove('hidden');
+        };
+
+        window.closeCreateModal = function() {
+            document.getElementById('create-modal').classList.add('hidden');
+            document.getElementById('post-form').reset();
+            uploadedImageBase64 = '';
+            document.getElementById('image-preview-wrapper').classList.add('hidden');
+            document.getElementById('upload-placeholder').classList.remove('hidden');
+        };
+
+        // Submit New Post
+        window.handlePostSubmit = async function(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('btn-submit-post');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-60');
+
+            const category = document.getElementById('post-category').value;
+            const title = document.getElementById('post-title').value.trim();
+            const mediaUrl = document.getElementById('post-media-url').value.trim();
+            const content = document.getElementById('post-content').value.trim();
+            const author = document.getElementById('post-author').value.trim() || 'நம்ம உலகம் (Member)';
+
+            const newPostData = {
+                category,
+                title,
+                content,
+                imageUrl: uploadedImageBase64 || '',
+                mediaUrl,
+                author,
+                likes: 1,
+                createdAtMs: Date.now()
+            };
+
+            try {
+                if (!useFallbackMemory && db && currentUser) {
+                    const postsColRef = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
+                    await addDoc(postsColRef, {
+                        ...newPostData,
+                        createdAt: serverTimestamp()
+                    });
+                } else {
+                    allPosts.unshift({ id: 'local-' + Date.now(), ...newPostData });
+                    renderPosts();
+                }
+
+                closeCreateModal();
+                showToast(UI_TEXT[currentLang].toastPublished, 'success');
+            } catch (err) {
+                console.error("Error publishing post:", err);
+                showToast("Error saving post. Please try again.", 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-60');
+            }
+        };
+
+        // Open Full Article / Post Reader Modal
+        window.openReadModal = function(postId) {
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            activePostId = postId;
+            const catInfo = CATEGORIES.find(c => c.id === post.category) || CATEGORIES[1];
+            const badge = document.getElementById('read-category-badge');
+            badge.className = `inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${catInfo.color}`;
+            badge.innerHTML = `<i class="fa-solid ${catInfo.icon}"></i> ${currentLang === 'ta' ? catInfo.ta : catInfo.en}`;
+
+            const imgContainer = document.getElementById('read-image-container');
+            const imgEl = document.getElementById('read-image');
+            if (post.imageUrl && post.imageUrl.trim() !== '') {
+                imgEl.src = post.imageUrl;
+                imgContainer.classList.remove('hidden');
+            } else {
+                imgContainer.classList.add('hidden');
+            }
+
+            document.getElementById('read-title').textContent = post.title;
+            document.getElementById('read-author').textContent = post.author || 'Admin';
+            document.getElementById('read-date').textContent = formatPostDate(post);
+            document.getElementById('read-content').textContent = post.content;
+            document.getElementById('read-like-count').textContent = post.likes || 0;
+            document.getElementById('read-like-label').textContent = UI_TEXT[currentLang].likeLabel;
+            document.getElementById('read-share-label').textContent = UI_TEXT[currentLang].shareLabel;
+
+            // Handle Song / Video Embed
+            const mediaContainer = document.getElementById('read-media-container');
+            if (post.mediaUrl && post.mediaUrl.trim() !== '') {
+                const ytId = extractYouTubeId(post.mediaUrl);
+                if (ytId) {
+                    mediaContainer.innerHTML = `
+                        <div class="aspect-video w-full">
+                            <iframe class="w-full h-full" src="https://www.youtube.com/embed/${ytId}" 
+                                title="Media Player" frameborder="0" 
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+                            </iframe>
+                        </div>
+                    `;
+                } else if (post.mediaUrl.match(/\.(mp3|wav|ogg)$/i)) {
+                    mediaContainer.innerHTML = `
+                        <div class="p-4 bg-brand-darkTeal text-white flex flex-col gap-2">
+                            <span class="text-xs font-bold text-brand-gold"><i class="fa-solid fa-headphones"></i> Audio Player</span>
+                            <audio controls class="w-full">
+                                <source src="${escapeHtml(post.mediaUrl)}">
+                            </audio>
+                        </div>
+                    `;
+                } else {
+                    mediaContainer.innerHTML = `
+                        <a href="${escapeHtml(post.mediaUrl)}" target="_blank" rel="noopener noreferrer" 
+                            class="flex items-center justify-between p-4 bg-brand-teal text-white hover:bg-brand-darkTeal transition">
+                            <span class="text-sm font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-circle-play text-brand-gold text-lg"></i>
+                                பாடல் / வீடியோ இணைப்பைத் திறக்க (Open Media Link)
+                            </span>
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    `;
+                }
+                mediaContainer.classList.remove('hidden');
+            } else {
+                mediaContainer.classList.add('hidden');
+                mediaContainer.innerHTML = '';
+            }
+
+            document.getElementById('read-modal').classList.remove('hidden');
+        };
+
+        window.closeReadModal = function() {
+            document.getElementById('read-modal').classList.add('hidden');
+            document.getElementById('read-media-container').innerHTML = '';
+            activePostId = null;
+        };
+
+        // Like Current Post
+        window.likeCurrentPost = async function() {
+            if (!activePostId) return;
+            const post = allPosts.find(p => p.id === activePostId);
+            if (!post) return;
+
+            const newLikes = (post.likes || 0) + 1;
+            document.getElementById('read-like-count').textContent = newLikes;
+
+            if (!useFallbackMemory && db && currentUser) {
+                try {
+                    const postRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', activePostId);
+                    await updateDoc(postRef, { likes: newLikes });
+                } catch (err) {
+                    console.error("Like update error:", err);
+                }
+            } else {
+                post.likes = newLikes;
+                renderPosts();
+            }
+        };
+
+        // Copy Post Text using execCommand
+        window.copyPostText = function() {
+            const post = allPosts.find(p => p.id === activePostId);
+            if (!post) return;
+
+            const shareText = `${post.title}\n\n${post.content}\n\n- நம்ம விரும்பும் உலகம் (Namma Virumbum Ulagam)`;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = shareText;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            showToast(UI_TEXT[currentLang].toastCopied, 'success');
+        };
+
+        // Delete Post Confirmation Flow
+        window.deleteCurrentPost = function() {
+            if (!activePostId) return;
+            pendingDeleteId = activePostId;
+            document.getElementById('delete-confirm-modal').classList.remove('hidden');
+        };
+
+        window.closeDeleteConfirm = function() {
+            pendingDeleteId = null;
+            document.getElementById('delete-confirm-modal').classList.add('hidden');
+        };
+
+        window.confirmDeleteAction = async function() {
+            if (!pendingDeleteId) return;
+            const targetId = pendingDeleteId;
+            closeDeleteConfirm();
+            closeReadModal();
+
+            if (!useFallbackMemory && db && currentUser) {
+                try {
+                    const postRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', targetId);
+                    await deleteDoc(postRef);
+                    showToast(UI_TEXT[currentLang].toastDeleted, 'success');
+                } catch (err) {
+                    console.error("Delete error:", err);
+                }
+            } else {
+                allPosts = allPosts.filter(p => p.id !== targetId);
+                renderPosts();
+                showToast(UI_TEXT[currentLang].toastDeleted, 'success');
+            }
+        };
+
+        // Helper Functions
+        function extractYouTubeId(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function formatPostDate(post) {
+            const ms = post.createdAt?.toMillis ? post.createdAt.toMillis() : (post.createdAtMs || Date.now());
+            const d = new Date(ms);
+            return d.toLocaleDateString(currentLang === 'ta' ? 'ta-IN' : 'en-IN', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgClass = type === 'success' ? 'bg-brand-darkTeal border-brand-gold' : 'bg-rose-700 border-rose-400';
+            toast.className = `${bgClass} text-white px-4 py-3 rounded-xl shadow-lg border-l-4 text-xs sm:text-sm font-semibold flex items-center gap-2.5 pointer-events-auto transition-all`;
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check text-brand-gold' : 'fa-circle-exclamation'}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        // Start Application on Window Load
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
